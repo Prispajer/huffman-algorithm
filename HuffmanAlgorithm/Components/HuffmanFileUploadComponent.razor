@@ -1,0 +1,72 @@
+﻿@using HuffmanAlgorithm.Services
+@using HuffmanAlgorithm.Interfaces;
+@inject IHuffmanEncoderService HuffmanEncoderService
+@inject IHuffmanFileService HuffmanFileService
+
+
+<h3 class="upload-title">Upload Pliku i Kodowanie Huffmana</h3>
+
+<input type="file" />
+<br />
+<button @onclick="ProcessFile" disabled="@isProcessing || string.IsNullOrEmpty(inputText)">Koduj plik</button>
+
+@if (isProcessing)
+{
+    <p>Trwa kodowanie...</p>
+}
+
+@if (encodedText != null)
+{
+    <h4>Zakodowany plik:</h4>
+    <pre>@encodedText</pre>
+}
+
+<h4>Generowane kody:</h4>
+@if (huffmanCodes != null)
+{
+    <ul>
+        @foreach (var code in huffmanCodes)
+        {
+            <li>code.Key: code.Value</li>
+        }
+    </ul>
+}
+
+@code {
+    private string? inputText;
+    private string? encodedText;
+    private Dictionary<char, string>? huffmanCodes;
+    private bool isProcessing = false;
+
+    private async Task UploadFileAsync(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        inputText = await ReadFileAsync(file);
+    }
+
+    private void ProcessFile()
+    {
+        if (string.IsNullOrEmpty(inputText)) return;
+
+        isProcessing = true;
+
+        // Generowanie kodów Huffmana
+        huffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(inputText);
+
+        // Generowanie zakodowanego tekstu
+        encodedText = string.Join("", inputText.Select(c => huffmanCodes[c]));
+
+        isProcessing = false;
+    }
+
+
+    private async Task<string> ReadFileAsync(IBrowserFile file)
+    {
+        using var stream = file.OpenReadStream();
+        using var reader = new StreamReader(stream);
+        return await reader.ReadToEndAsync();
+    }
+
+}
+
+}

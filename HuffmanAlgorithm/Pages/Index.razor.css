@@ -1,0 +1,16 @@
+﻿.huffman-encoder-component-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px 0px;
+    background-color: #795757;
+}
+
+
+.huffman-upload-file-component-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px 0px;
+    background-color: #795757;
+}

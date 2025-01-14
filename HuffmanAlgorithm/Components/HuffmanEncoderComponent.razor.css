@@ -1,0 +1,100 @@
+﻿.huffman-encoder-component-title {
+    text-align: center;
+    font-size: 64px;
+    color: #ECDFCC;
+    cursor: default;
+}
+
+.huffman-encoder-component-textarea-container {
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    text-align: center;
+    background-color: #795757;
+}
+
+.huffman-encoder-component-textarea-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 100px 1fr;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    gap: 50px;
+    text-align: center;
+}
+
+.huffman-encoder-component-textarea-item button {
+    padding: 10px 20px;
+    outline: none;
+    border-radius: 18px;
+    background-color: #ECDFCC;
+    border-color: #EAD8B1;
+}
+
+.huffman-encoder-component-textarea-label {
+    color: #E6B9A6;
+    cursor: default;
+}
+
+
+
+.huffman-encoder-component-summary-container {
+    background-color: #664343;
+}
+
+.huffman-encoder-component-summary-wrapper {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 2px solid #ddd; /* Delikatne obramowanie */
+    border-radius: 8px; /* Zaokrąglone rogi */
+    padding: 20px; /* Wewnętrzny odstęp dla komfortu czytania */
+    margin: 20px auto; /* Marginesy z góry i z dołu, wycentrowanie w poziomie */
+    max-width: 800px; /* Maksymalna szerokość kontenera */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtelny cień dla wizualnej głębi */
+    font-family: 'Roboto Condensed', sans-serif; /* Nowoczesna i czytelna czcionka */
+}
+
+    .huffman-encoder-component-summary-wrapper h4 {
+        color: #444; /* Wyróżniający się kolor nagłówka */
+        margin-bottom: 10px; /* Odstęp między nagłówkiem a listą */
+        font-size: 18px; /* Rozmiar tekstu dla nagłówka */
+        text-decoration: underline; /* Dodatkowe podkreślenie nagłówków */
+    }
+
+    .huffman-encoder-component-summary-wrapper ul {
+        list-style-type: none; /* Usunięcie standardowych punktów listy */
+        padding: 0; /* Usunięcie domyślnego wcięcia */
+        margin: 0; /* Usunięcie domyślnego marginesu */
+    }
+
+    .huffman-encoder-component-summary-wrapper li {
+        background-color: #fff; /* Tło dla elementów listy */
+        border: 1px solid #ddd; /* Obramowanie dla separacji elementów */
+        border-radius: 4px; /* Delikatne zaokrąglenie rogów */
+        padding: 8px 12px; /* Odstęp wewnętrzny dla lepszej czytelności */
+        margin-bottom: 8px; /* Odstęp między elementami */
+        font-size: 16px; /* Rozmiar tekstu w liście */
+        display: flex; /* Użycie flexboxa dla układu */
+        justify-content: space-between; /* Równomierne rozmieszczenie klucza i wartości */
+        align-items: center; /* Wyrównanie w pionie */
+    }
+
+        .huffman-encoder-component-summary-wrapper li:last-child {
+            margin-bottom: 0; /* Usunięcie odstępu dla ostatniego elementu */
+        }
+
+
+textarea {
+    width: 100%;
+    background-color: transparent;
+    padding: 10px;
+    outline: none;
+    color: #FFF0D1;
+    border-radius: 18px;
+    border-color: #EAD8B1;
+}
+
+textarea::placeholder{
+   color: #FFF0D1;
+}

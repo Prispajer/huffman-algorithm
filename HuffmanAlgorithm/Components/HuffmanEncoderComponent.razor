@@ -1,0 +1,96 @@
+﻿@inject IJSRuntime JSRuntime
+
+@using HuffmanAlgorithm.Services
+@using HuffmanAlgorithm.Interfaces;
+@inject IHuffmanEncoderService HuffmanEncoderService
+@inject IHuffmanFileService HuffmanFileService
+
+
+<h3 class="huffman-encoder-component-title">Huffman Encoder & Decoder</h3>
+<div class="huffman-encoder-component-textarea-container">
+    <div class="huffman-encoder-component-textarea-wrapper">
+        <div class="huffman-encoder-component-textarea-item">
+            <h4 class="huffman-encoder-component-textarea-label">Text to encode</h4>
+            <textarea @bind="inputText" rows="4" placeholder="Enter text to encode"></textarea>
+        </div>
+        <div class="huffman-encoder-component-textarea-item">
+            <button @onclick="EncodeText" disabled="@isPending">Encode</button>
+        </div>
+        <div class="huffman-encoder-component-textarea-item">
+            <h4 class="huffman-encoder-component-textarea-label">Encoded text</h4>
+            <textarea @bind="encodedText" rows="4" placeholder="Encoded text"></textarea>
+        </div>
+    </div>
+</div>
+<div class ="huffman-encoder-component-summary-container">
+    <div class="huffman-encoder-component-summary-wrapper">
+        <h4>Character Occurrence Count</h4>
+        @if (huffmanFrequencies != null)
+        {
+            <ul>
+                @foreach (var frequencies in huffmanFrequencies)
+                {
+                    <li>@frequencies.Key: @frequencies.Value</li>
+                }
+            </ul>
+        }
+        <h4>Generowane kody:</h4>
+        @if (huffmanCodes != null)
+        {
+            <ul>
+                @foreach (var codes in huffmanCodes)
+                {
+                    <li>@codes.Key: @codes.Value</li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+@if (isPending)
+{
+    <p>Coding is pending...</p>
+}
+
+@code {
+    private string? inputText;
+    private string? encodedText;
+    private Dictionary<char, string>? huffmanCodes;
+    private Dictionary<char, int>? huffmanFrequencies;
+    private bool isPending = false;
+
+    private async void EncodeText()
+    {
+        if (string.IsNullOrEmpty(inputText)) return;
+
+        isPending = true;
+
+        // Generowanie obliczenia ilości wystąpień znaków
+        huffmanFrequencies = HuffmanEncoderService.CalculateOccurrenceFrequency(inputText);
+
+        // Logowanie częstotliwości znaków w formacie JSON
+        if (huffmanFrequencies != null)
+        {
+            var frequenciesJson = System.Text.Json.JsonSerializer.Serialize(huffmanFrequencies);
+            await JSRuntime.InvokeVoidAsync("console.log", $"Huffman frequencies: {frequenciesJson}");
+        }
+
+        // Generowanie kodów Huffmana
+        huffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(inputText);
+
+        // Logowanie kodów Huffmana w formacie JSON
+        if (huffmanCodes != null)
+        {
+            var codesJson = System.Text.Json.JsonSerializer.Serialize(huffmanCodes);
+            await JSRuntime.InvokeVoidAsync("console.log", $"Huffman codes: {codesJson}");
+        }
+
+        // Generowanie zakodowanego tekstu
+        encodedText = string.Join("", inputText.Select(c => huffmanCodes![c]));
+
+        // Logowanie zakodowanego tekstu
+        await JSRuntime.InvokeVoidAsync("console.log", $"Encoded text: {encodedText}");
+
+        isPending = false;
+    }
+}
