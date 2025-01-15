@@ -21,17 +21,6 @@
     <pre>@encodedText</pre>
 }
 
-<h4>Generowane kody:</h4>
-@if (huffmanCodes != null)
-{
-    <ul>
-        @foreach (var code in huffmanCodes)
-        {
-            <li>code.Key: code.Value</li>
-        }
-    </ul>
-}
-
 @code {
     private string? inputText;
     private string? encodedText;
@@ -66,7 +55,4 @@
         using var reader = new StreamReader(stream);
         return await reader.ReadToEndAsync();
     }
-
-}
-
 }

@@ -1,109 +1,199 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotNetGraph;
+using DotNetGraph.Attributes;
+using System.Text;
 using HuffmanAlgorithm.Models;
 using HuffmanAlgorithm.Interfaces;
-using Microsoft.AspNetCore.Components.Forms;
+using DotNetGraph.Compilation;
+using DotNetGraph.Core;
+using DotNetGraph.Extensions;
+using System.Diagnostics;
+
 
 namespace HuffmanAlgorithm.Services
 {
     public class HuffmanEncoderService : IHuffmanEncoderService
     {
-        // Główna metoda generująca kody Huffmana na podstawie podanego tekstu
+
+        private int nodeIdCounter = 0;
+
+        // Główna metoda generująca kody Huffmana z tekstu wejściowego
         public Dictionary<char, string> GenerateHuffmanCodes(string inputText)
         {
-            // 1. Zliczanie częstotliwości wystąpień każdego znaku w tekście
             var frequencyDictionary = CalculateOccurrenceFrequency(inputText);
-
-            // 2. Utworzenie kolejki priorytetowej na podstawie częstotliwości znaków
             var priorityQueue = GeneratePriorityQueue(frequencyDictionary);
+            var root = GenerateHuffmanTree(priorityQueue);
 
-            // 3. Wygenerowanie drzewa Huffmana na podstawie kolejki priorytetowej
-            GenerateHuffmanTree(priorityQueue);
-
-            // 4. Generowanie kodów binarnych dla każdego symbolu na podstawie drzewa Huffmana
             var codes = new Dictionary<char, string>();
-            GenerateCodesRecursive(priorityQueue.Dequeue(), "", codes);
-
-            // 5. Zwracanie mapy kodów Huffmana (znak -> kod binarny)
+            GenerateCodesRecursive(root, "", codes);
             return codes;
         }
 
-
-        // Zlicza częstotliwość wystąpienia znaku na podstawie klucza kolekcji danych
+        // Zlicza częstotliwość wystąpienia znaków
         public Dictionary<char, int> CalculateOccurrenceFrequency(string inputText)
         {
             return inputText.GroupBy(c => c).ToDictionary(g => g.Key, g => g.Count());
         }
 
-        // Tworzy kolejkę priorytetową na podstawie częstotliwości występowania znaków
+        // Tworzy kolejkę priorytetową na podstawie częstotliwości znaków
         public PriorityQueue<HuffmanNode, int> GeneratePriorityQueue(Dictionary<char, int> frequencyDictionary)
         {
-            var priorityQueue = new PriorityQueue<HuffmanNode, int>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
-
-            // Dodanie każdego znaku do kolejki jako osobnego węzła
+            var priorityQueue = new PriorityQueue<HuffmanNode, int>(Comparer<int>.Create((x, y) => x.CompareTo(y))); // Min-heap
             foreach (var entry in frequencyDictionary)
             {
-                priorityQueue.Enqueue(new HuffmanNode
-                {
-                    Symbol = entry.Key,      // Znak
-                    Frequency = entry.Value  // Częstotliwość wystąpienia
-                }, entry.Value); // Używamy częstotliwości jako priorytetu
+                priorityQueue.Enqueue(new HuffmanNode { Symbol = entry.Key, Frequency = entry.Value }, entry.Value);
             }
-
             return priorityQueue;
         }
 
-
-        // Generuje drzewo Huffmana na podstawie kolejki priorytetowej
-        public void GenerateHuffmanTree(PriorityQueue<HuffmanNode, int> priorityQueue)
+        // Generuje drzewo Huffmana
+        public HuffmanNode GenerateHuffmanTree(PriorityQueue<HuffmanNode, int> priorityQueue)
         {
-            // Dopóki w kolejce jest więcej niż jeden węzeł
             while (priorityQueue.Count > 1)
             {
-                // Pobierz dwa węzły o najniższym priorytecie
                 var left = priorityQueue.Dequeue();
                 var right = priorityQueue.Dequeue();
-
-                // Utwórz nowy węzeł jako rodzic dla dwóch pobranych
-                var parentNode = new HuffmanNode
+                var parent = new HuffmanNode
                 {
-                    Symbol = '\0', // Węzeł wewnętrzny nie przechowuje symbolu
-                    Frequency = right.Frequency + left.Frequency,
+                    Frequency = left.Frequency + right.Frequency,
                     Left = left,
                     Right = right
                 };
-
-                // Logowanie tylko liści (symboli)
-                if (left.Symbol != '\0')
-                    Console.WriteLine($"Left: {left.Symbol}, Frequency: {left.Frequency}");
-                if (right.Symbol != '\0')
-                    Console.WriteLine($"Right: {right.Symbol}, Frequency: {right.Frequency}");
-
-                // Dodaj nowy węzeł z powrotem do kolejki
-                priorityQueue.Enqueue(parentNode, parentNode.Frequency);
+                priorityQueue.Enqueue(parent, parent.Frequency);
             }
+
+            return priorityQueue.Dequeue();
         }
 
-
-
-        // Rekurencyjnie generuje binarne kody Huffmana dla każdego symbolu
-        public void GenerateCodesRecursive(HuffmanNode node, string code, Dictionary<char, string> codes)
+        // Rekurencyjnie generuje kody binarne Huffmana
+        public void GenerateCodesRecursive(HuffmanNode node, string currentCode, Dictionary<char, string> codes)
         {
             if (node == null) return;
 
-            if (node.Symbol != '\0') // Jeśli to liść, zapisujemy symbol
+            if (node.Symbol != '\0')
             {
-                codes[node.Symbol] = code;
-                Console.WriteLine($"Symbol: {node.Symbol}, Code: {code}");
+                codes[node.Symbol] = currentCode;
             }
 
-            // Rekurencyjnie przechodzimy po lewym dziecku (dodajemy '0') i prawym dziecku (dodajemy '1')
+            GenerateCodesRecursive(node.Left!, currentCode + "0", codes);
+            GenerateCodesRecursive(node.Right!, currentCode + "1", codes);
+        }
+
+        // Generuje .dot dla drzewa Huffmana
+        public string GenerateDot(HuffmanNode root)
+        {
+            var graph = new DotGraph().WithIdentifier("HuffmanTree").Directed();
+
+            void AddNodeRecursive(HuffmanNode node, DotGraph dotGraph)
+            {
+                if (node == null) return;
+
+                // Generowanie unikalnego identyfikatora dla węzła
+                var currentNodeIdentifier = node.Symbol != '\0'
+                    ? $"{node.Symbol}" // Jeśli symbol istnieje
+                    : $"Node_{node.Frequency}"; // Jeśli to węzeł wewnętrzny
+
+                var currentNode = new DotNode()
+                    .WithIdentifier(currentNodeIdentifier)
+                    .WithLabel(node.Symbol != '\0' ? $"{node.Symbol}:{node.Frequency}" : $"{node.Frequency}")
+                    .WithShape(DotNodeShape.Ellipse);
+
+                dotGraph.Add(currentNode);
+
+                if (node.Left != null)
+                {
+                    var leftNodeIdentifier = node.Left.Symbol != '\0'
+                        ? $"{node.Left.Symbol}" // Symbol liścia
+                        : $"Node_{node.Left.Frequency}"; // Węzeł wewnętrzny
+
+                    var edge = new DotEdge()
+                        .From(currentNodeIdentifier)
+                        .To(leftNodeIdentifier)
+                        .WithLabel("0"); // Lewa krawędź (0)
+
+                    dotGraph.Add(edge);
+                    AddNodeRecursive(node.Left, dotGraph);
+                }
+
+                if (node.Right != null)
+                {
+                    var rightNodeIdentifier = node.Right.Symbol != '\0'
+                        ? $"{node.Right.Symbol}" // Symbol liścia
+                        : $"Node_{node.Right.Frequency}"; // Węzeł wewnętrzny
+
+                    var edge = new DotEdge()
+                        .From(currentNodeIdentifier)
+                        .To(rightNodeIdentifier)
+                        .WithLabel("1"); // Prawa krawędź (1)
+
+                    dotGraph.Add(edge);
+                    AddNodeRecursive(node.Right, dotGraph);
+                }
+            }
+
+
+            AddNodeRecursive(root, graph);
+
+            // Kompilacja do DOT
+            using var writer = new StringWriter();
+            var context = new CompilationContext(writer, new CompilationOptions());
+            graph.CompileAsync(context).GetAwaiter().GetResult();
+
+            return writer.ToString();
+        }
+
+        // Rekurencyjne generowanie .dot
+        public void GenerateDotRecursive(HuffmanNode node, StringBuilder dotBuilder)
+        {
+            if (node == null) return;
+
+            string currentId = $"node{nodeIdCounter++}"; // Unikalny identyfikator węzła
+
+            // Dodajemy węzeł do grafu
+            if (node.Symbol != '\0')
+            {
+                dotBuilder.AppendLine($"\"{currentId}\" [label=\"{node.Symbol}:{node.Frequency}\"];");
+            }
+            else
+            {
+                dotBuilder.AppendLine($"\"{currentId}\" [label=\"{node.Frequency}\", shape=ellipse];");
+            }
+
             if (node.Left != null)
-                GenerateCodesRecursive(node.Left, code + "0", codes);
+            {
+                string leftId = $"node{nodeIdCounter}";
+                dotBuilder.AppendLine($"\"{currentId}\" -> \"{leftId}\";");
+                GenerateDotRecursive(node.Left, dotBuilder);
+            }
 
             if (node.Right != null)
-                GenerateCodesRecursive(node.Right, code + "1", codes);
+            {
+                string rightId = $"node{nodeIdCounter}";
+                dotBuilder.AppendLine($"\"{currentId}\" -> \"{rightId}\";");
+                GenerateDotRecursive(node.Right, dotBuilder);
+            }
+        }
+
+        // Dekodowanie zakodowanego tekstu
+        public string DecodeHuffmanData(string encodedData, HuffmanNode root)
+        {
+            var decodedText = new StringBuilder();
+            var currentNode = root;
+
+            foreach (var bit in encodedData)
+            {
+                currentNode = bit == '0' ? currentNode?.Left : currentNode?.Right;
+
+                if (currentNode?.Left == null && currentNode?.Right == null)
+                {
+                    decodedText.Append(currentNode?.Symbol);
+                    currentNode = root; // Resetujemy do korzenia
+                }
+            }
+
+            return decodedText.ToString();
         }
 
 
