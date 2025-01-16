@@ -1,2 +1,51 @@
-﻿body {
+﻿.huffman-upload-file-component-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction:column;
+    width: 100%;
 }
+
+.huffman-upload-file-component-wrapper button {
+    padding: 10px 20px;
+    outline: none;
+    border-radius: 18px;
+    font-size: 18px;
+    background-color: #ECDFCC;
+    border-color: #EAD8B1;
+    cursor: pointer;
+ }
+
+.huffman-upload-file-component-wrapper h3 {
+    color: #ECDFCC;
+    font-size: 18px;
+}
+
+input {
+    display:flex;
+    flex-direction:column;
+    margin:10px 0;
+    padding: 10px 20px;
+    border-radius: 18px;
+    font-size: 18px;
+    background-color: #ECDFCC;
+    border-color: #EAD8B1;
+    cursor: pointer;
+    color: #ECDFCC;
+}
+
+@media only screen and (max-width: 580px) {
+    input {
+        padding: 10px 10px;
+        font-size: 14px;
+    }
+
+    .huffman-upload-file-component-wrapper button {
+        padding: 10px 20px;
+        outline: none;
+        border-radius: 18px;
+        font-size: 16px;
+    }
+
+}
+

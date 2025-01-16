@@ -1,0 +1,73 @@
+﻿.huffman-encoder-component-textarea-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 100px 1fr;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    gap: 50px;
+    text-align: center;
+}
+
+
+.huffman-encoder-component-textarea-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0px;
+    gap: 20px;
+}
+
+.huffman-encoder-component-textarea-item button {
+    padding: 10px 20px;
+    outline: none;
+    border-radius: 18px;
+    font-size: 18px;
+    background-color: #ECDFCC;
+    border-color: #EAD8B1;
+    cursor:pointer;
+}
+
+.huffman-encoder-component-textarea-label {
+    font-size:24px;
+    color: #E6B9A6;
+    cursor: default;
+}
+
+
+textarea {
+    width: 100%;
+    background-color: transparent;
+    padding: 10px;
+    outline: none;
+    color: #FFF0D1;
+    font-size:18px;
+    border-radius: 18px;
+    border-color: #EAD8B1;
+}
+
+textarea::placeholder {
+    color: #FFF0D1;
+}
+
+
+@media only screen and (max-width: 580px) {
+    textarea {
+        font-size: 14px;
+    }
+
+    .huffman-encoder-component-textarea-label {
+        font-size: 20px;
+    }
+
+    .huffman-encoder-component-textarea-item button {
+        font-size: 16px;
+    }
+
+    .huffman-encoder-component-textarea-wrapper {
+        gap: 20px;
+    }
+
+
+}

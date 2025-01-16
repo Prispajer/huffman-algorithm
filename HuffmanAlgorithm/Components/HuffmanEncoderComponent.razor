@@ -1,138 +1,149 @@
-﻿@inject IJSRuntime JSRuntime
-@using HuffmanAlgorithm.Services
+﻿@using HuffmanAlgorithm.Services
 @using HuffmanAlgorithm.Interfaces
+@using HuffmanAlgorithm.Components
+@inject IJSRuntime JSRuntime
 @inject IHuffmanEncoderService HuffmanEncoderService
 
 <h3 class="huffman-encoder-component-title">Huffman Encoder & Decoder</h3>
 <div class="huffman-encoder-component-textarea-container">
-    <div class="huffman-encoder-component-textarea-wrapper">
-        <div class="huffman-encoder-component-textarea-item">
-            <h4 class="huffman-encoder-component-textarea-label">Text to encode</h4>
-            <textarea @bind="inputText" rows="4" placeholder="Enter text to encode"></textarea>
-        </div>
-        <div class="huffman-encoder-component-textarea-item">
-            <button @onclick="EncodeText" disabled="@isPending">Encode</button>
-            <button @onclick="DecodeText" disabled="@isPending">Decode</button>
-        </div>
-        <div class="huffman-encoder-component-textarea-item">
-            <h4 class="huffman-encoder-component-textarea-label">Encoded text</h4>
-            <textarea @bind="encodedText" rows="4" placeholder="Encoded text"></textarea>
-        </div>
-    </div>
-    <div class="huffman-encoder-component-textarea-item">
-        <h4 class="huffman-encoder-component-textarea-label">Decoded text</h4>
-        <textarea @bind="decodedText" disabled="disabled" rows="4" placeholder="Decoded text"></textarea>
-    </div>
+<HuffmanTextAreaComponent 
+    InputText="@InputText" 
+    EncodedText="@EncodedText" 
+    DecodedText="@DecodedText" 
+    IsPending="@IsPending" 
+    EncodeText="EncodeText" 
+    DecodeText="DecodeText" />
 </div>
-
 <div class="huffman-encoder-component-summary-container">
     <div class="huffman-encoder-component-summary-wrapper">
-        <h4>Character Occurrence Count</h4>
-        @if (huffmanFrequencies != null)
-        {
-            <ul>
-                @foreach (var frequencies in huffmanFrequencies)
-                {
-                    <li>@frequencies.Key: @frequencies.Value</li>
-                }
-            </ul>
-        }
-        <h4>Generated Huffman Codes:</h4>
-        @if (huffmanCodes != null)
-        {
-            <ul>
-                @foreach (var codes in huffmanCodes)
-                {
-                    <li>@codes.Key: @codes.Value</li>
-                }
-            </ul>
-        }
-    </div>
-    <div id="huffman-encoder-component-summary-huffman-tree">
-        <button @onclick="RenderGraph">Display Huffman Tree</button>
-        <div>
-            <h4>DOT representation of Huffman Tree</h4>
-            @if (!string.IsNullOrEmpty(dotGraph))
+        <div class="huffman-encoder-component-summary-frequency">
+            <h4>Character Occurrence Count</h4>
+            @if (HuffmanFrequencies != null)
             {
-                <pre>@dotGraph</pre> <!-- Wyświetla surowy tekst DOT -->
+                <ul>
+                    @foreach (var frequencies in HuffmanFrequencies)
+                    {
+                        <li>@frequencies.Key: @frequencies.Value</li>
+                    }
+                </ul>
             }
             else
             {
-                <p>No tree generated yet.</p>
+                <p>No occurence count generated.</p>
+
+            }
+            <h4>Generated Huffman Codes</h4>
+            @if (HuffmanCodes != null)
+            {
+                <ul>
+                    @foreach (var codes in HuffmanCodes)
+                    {
+                        <li>@codes.Key: @codes.Value</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No huffman codes generated.</p>
             }
         </div>
-        <button @onclick="RenderGraph">Render Graph</button>
-
+        <div class="huffman-encoder-component-summary-huffman-tree-container">
+            <div class="huffman-encoder-component-summary-dot-graph">
+                <h4>DOT representation of Huffman Tree</h4>
+                @if (!string.IsNullOrEmpty(DotGraph))
+                {
+                    <pre>@DotGraph</pre>
+                }
+                else
+                {
+                    <p>No DOT Tree generated yet.</p>
+                }
+            </div>
+            <div id="huffman-encoder-component-summary-huffman-tree">
+                <h4>GRAPH representation of Huffman Tree</h4>
+                @if (!string.IsNullOrEmpty(DotGraph))
+                {
+                    <pre>@DotGraph</pre>
+                }
+                else
+                {
+                    <p>No GRAPH Tree generated yet.</p>
+                }
+            </div>
+        </div>
     </div>
 </div>
+<div class="huffman-encoder-component-summary-button">
+    <button @onclick="RenderGraph">Display Huffman Tree</button>
+</div>
 
-@if (isPending)
+@if (IsPending)
 {
     <p>Coding is pending...</p>
 }
 
 @code {
-    private string? inputText;
-    private string? encodedText;
-    private string? decodedText;
-    private Dictionary<char, string>? huffmanCodes;
-    private Dictionary<char, int>? huffmanFrequencies;
-    private bool isPending = false;
-    private string? dotGraph; 
+    public string? InputText { get; set; }
+    public string? EncodedText { get; set; }
+    public string? DecodedText { get; set; }
+    public bool IsPending { get; set; }
+    private Dictionary<char, string>? HuffmanCodes;
+    private Dictionary<char, int>? HuffmanFrequencies;
+    private string? DotGraph;
 
     private async Task RenderGraph()
     {
-        if (string.IsNullOrEmpty(inputText)) return;
+        if (string.IsNullOrEmpty(InputText)) return;
 
 
         // Generowanie częstotliwości, kodów i drzewa Huffmana
-        huffmanFrequencies = HuffmanEncoderService.CalculateOccurrenceFrequency(inputText);
-        huffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(inputText);
-        var priorityQueue = HuffmanEncoderService.GeneratePriorityQueue(huffmanFrequencies);
+        HuffmanFrequencies = HuffmanEncoderService.CalculateOccurrenceFrequency(InputText);
+        HuffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(InputText);
+        var priorityQueue = HuffmanEncoderService.GeneratePriorityQueue(HuffmanFrequencies);
         var root = HuffmanEncoderService.GenerateHuffmanTree(priorityQueue);
 
         // Generowanie kodu DOT
-        dotGraph = HuffmanEncoderService.GenerateDot(root);
+        DotGraph = HuffmanEncoderService.GenerateDot(root);
 
 
-        await JSRuntime.InvokeVoidAsync("vizRenderGraph", dotGraph);
+        await JSRuntime.InvokeVoidAsync("vizRenderGraph", DotGraph);
 
-        isPending = false;
+        IsPending = false;
 
     }
 
     private void EncodeText()
     {
-        if (string.IsNullOrEmpty(inputText)) return;
+        if (string.IsNullOrEmpty(InputText)) return;
 
-        isPending = true;
+        IsPending = true;
 
-        decodedText = "";
+        DecodedText = "";
 
         // Generate frequencies of character occurrences
-        huffmanFrequencies = HuffmanEncoderService.CalculateOccurrenceFrequency(inputText);
+        HuffmanFrequencies = HuffmanEncoderService.CalculateOccurrenceFrequency(InputText);
 
         // Generating Huffman codes
-        huffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(inputText);
+        HuffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(InputText);
 
         // Generating the encoded text
-        encodedText = string.Join("", inputText.Select(c => huffmanCodes![c]));
+        EncodedText = string.Join("", InputText.Select(c => HuffmanCodes![c]));
 
-        isPending = false;
+        IsPending = false;
     }
 
     private void DecodeText()
     {
-        if (string.IsNullOrEmpty(encodedText) || string.IsNullOrEmpty(inputText)) return;
+        if (string.IsNullOrEmpty(EncodedText) || string.IsNullOrEmpty(InputText)) return;
 
         // Generating frequencies and tree
-        huffmanFrequencies = HuffmanEncoderService.CalculateOccurrenceFrequency(inputText);
-        huffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(inputText);
+        HuffmanFrequencies = HuffmanEncoderService.CalculateOccurrenceFrequency(InputText);
+        HuffmanCodes = HuffmanEncoderService.GenerateHuffmanCodes(InputText);
 
-        var priorityQueue = HuffmanEncoderService.GeneratePriorityQueue(huffmanFrequencies);
+        var priorityQueue = HuffmanEncoderService.GeneratePriorityQueue(HuffmanFrequencies);
         var root = HuffmanEncoderService.GenerateHuffmanTree(priorityQueue);
 
         // Decoding the text
-        decodedText = HuffmanEncoderService.DecodeHuffmanData(encodedText, root);
+        DecodedText = HuffmanEncoderService.DecodeHuffmanData(EncodedText, root);
     }
 }

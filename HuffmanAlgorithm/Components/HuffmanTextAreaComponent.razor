@@ -1,0 +1,34 @@
+﻿
+<div class="huffman-encoder-component-textarea-wrapper">
+    <div class="huffman-encoder-component-textarea-item">
+        <h4 class="huffman-encoder-component-textarea-label">Text to encode</h4>
+        <textarea @bind="InputText" rows="4" placeholder="Enter text to encode"></textarea>
+    </div>
+    <div class="huffman-encoder-component-textarea-item">
+        <button @onclick="EncodeText" disabled="@IsPending">Encode</button>
+        <button @onclick="DecodeText" disabled="@IsPending">Decode</button>
+    </div>
+    <div class="huffman-encoder-component-textarea-item">
+        <h4 class="huffman-encoder-component-textarea-label">Encoded text</h4>
+        <textarea @bind="EncodedText" disabled="disabled" rows="4" placeholder="Encoded text"></textarea>
+    </div>
+</div>
+<div class="huffman-encoder-component-textarea-item">
+    <h4 class="huffman-encoder-component-textarea-label">Decoded text</h4>
+    <textarea @bind="DecodedText" disabled="disabled" rows="4" placeholder="Decoded text"></textarea>
+</div>
+
+@code {
+    [Parameter] 
+    public string? InputText { get; set; } 
+    [Parameter] 
+    public string? EncodedText { get; set; }
+    [Parameter] 
+    public string? DecodedText { get; set; }
+    [Parameter] 
+    public bool IsPending { get; set; }
+    [Parameter] 
+    public EventCallback EncodeText { get; set; }
+    [Parameter] 
+    public EventCallback DecodeText { get; set; }
+}

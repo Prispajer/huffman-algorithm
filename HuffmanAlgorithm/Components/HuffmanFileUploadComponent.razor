@@ -1,25 +1,28 @@
 ﻿@using HuffmanAlgorithm.Services
 @using HuffmanAlgorithm.Interfaces;
+@using HuffmanAlgorithm.Components;
 @inject IHuffmanEncoderService HuffmanEncoderService
 @inject IHuffmanFileService HuffmanFileService
 
 
-<h3 class="upload-title">Upload Pliku i Kodowanie Huffmana</h3>
+<div class="huffman-upload-file-component-wrapper">
+    <h3 class="upload-title">Upload Pliku i Kodowanie Huffmana</h3>
+    <input type="file"  />
+    <br />
+    <button @onclick="ProcessFile" disabled="@isProcessing || string.IsNullOrEmpty(inputText)">Koduj plik</button>
+    @if (encodedText != null)
+    {
+        <h4>Zakodowany plik:</h4>
+        <pre>@encodedText</pre>
+    }
+</div>
 
-<input type="file" />
-<br />
-<button @onclick="ProcessFile" disabled="@isProcessing || string.IsNullOrEmpty(inputText)">Koduj plik</button>
 
 @if (isProcessing)
 {
     <p>Trwa kodowanie...</p>
 }
 
-@if (encodedText != null)
-{
-    <h4>Zakodowany plik:</h4>
-    <pre>@encodedText</pre>
-}
 
 @code {
     private string? inputText;
