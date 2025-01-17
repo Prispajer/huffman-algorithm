@@ -1,34 +1,41 @@
-﻿
+﻿@using HuffmanAlgorithm.Services
+@using HuffmanAlgorithm.Interfaces
+@using HuffmanAlgorithm.Components
+@using HuffmanAlgorithm.Models
+@inject IHuffmanEncoderService HuffmanEncoderService
+@inject IHuffmanDecoderService HuffmanDecoderService
+@inject HuffmanProcessingData _huffmanProcessingData
+@implements IDisposable
+
 <div class="huffman-encoder-component-textarea-wrapper">
     <div class="huffman-encoder-component-textarea-item">
         <h4 class="huffman-encoder-component-textarea-label">Text to encode</h4>
-        <textarea @bind="InputText" rows="4" placeholder="Enter text to encode"></textarea>
+        <textarea @bind="_huffmanProcessingData.InputText" rows="4" placeholder="Enter text to encode"></textarea>
     </div>
     <div class="huffman-encoder-component-textarea-item">
-        <button @onclick="EncodeText" disabled="@IsPending">Encode</button>
-        <button @onclick="DecodeText" disabled="@IsPending">Decode</button>
+        <button @onclick="HuffmanEncoderService.EncodeText" disabled="@_huffmanProcessingData.IsPending">Encode</button>
+        <button @onclick="HuffmanDecoderService.DecodeText" disabled="@_huffmanProcessingData.IsPending">Decode</button>
     </div>
     <div class="huffman-encoder-component-textarea-item">
         <h4 class="huffman-encoder-component-textarea-label">Encoded text</h4>
-        <textarea @bind="EncodedText" disabled="disabled" rows="4" placeholder="Encoded text"></textarea>
+        <textarea @bind="_huffmanProcessingData.EncodedText" disabled="disabled" rows="4" placeholder="Encoded text"></textarea>
     </div>
 </div>
 <div class="huffman-encoder-component-textarea-item">
     <h4 class="huffman-encoder-component-textarea-label">Decoded text</h4>
-    <textarea @bind="DecodedText" disabled="disabled" rows="4" placeholder="Decoded text"></textarea>
+    <textarea @bind="_huffmanProcessingData.DecodedText" disabled="disabled" rows="4" placeholder="Decoded text"></textarea>
 </div>
 
 @code {
-    [Parameter] 
-    public string? InputText { get; set; } 
-    [Parameter] 
-    public string? EncodedText { get; set; }
-    [Parameter] 
-    public string? DecodedText { get; set; }
-    [Parameter] 
-    public bool IsPending { get; set; }
-    [Parameter] 
-    public EventCallback EncodeText { get; set; }
-    [Parameter] 
-    public EventCallback DecodeText { get; set; }
+    protected override void OnInitialized()
+    {
+        HuffmanEncoderService.OnChange += StateHasChanged;
+        HuffmanDecoderService.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        HuffmanEncoderService.OnChange -= StateHasChanged;
+        HuffmanDecoderService.OnChange -= StateHasChanged;
+    }
 }

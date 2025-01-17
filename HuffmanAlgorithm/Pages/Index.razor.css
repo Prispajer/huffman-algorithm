@@ -10,7 +10,9 @@
 .huffman-upload-file-component-container {
     display: flex;
     flex-direction: column;
+    align-items:center;
+    justify-content:center;
     width: 100%;
-    padding: 20px 0;
+    padding: 20px;
     background-color: #472e2e;
 }

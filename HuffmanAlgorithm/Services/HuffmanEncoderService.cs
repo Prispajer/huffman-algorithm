@@ -1,196 +1,112 @@
-﻿using System.Text;
+﻿using HuffmanAlgorithm.Interfaces;
 using HuffmanAlgorithm.Models;
-using HuffmanAlgorithm.Interfaces;
-using DotNetGraph.Compilation;
-using DotNetGraph.Core;
-using DotNetGraph.Extensions;
-
 
 namespace HuffmanAlgorithm.Services
 {
     public class HuffmanEncoderService : IHuffmanEncoderService
     {
+        private readonly HuffmanProcessingData _huffmanProcessingData;
+        private readonly IHuffmanTreeBuilderService _huffmanTreeBuilderService;
+        private readonly IHuffmanEncodingService _huffmanEncodingService;
+        public event Action? OnChange;
 
-        private int nodeIdCounter = 0;
-
-        // Główna metoda generująca kody Huffmana z tekstu wejściowego
-        public Dictionary<char, string> GenerateHuffmanCodes(string inputText)
+        // Constructor to initialize the services required for Huffman encoding
+        public HuffmanEncoderService(
+            HuffmanProcessingData huffmanProcessingData,
+            IHuffmanTreeBuilderService huffmanTreeBuilderService,
+            IHuffmanEncodingService huffmanEncodingService)
         {
-            var frequencyDictionary = CalculateOccurrenceFrequency(inputText);
-            var priorityQueue = GeneratePriorityQueue(frequencyDictionary);
-            var root = GenerateHuffmanTree(priorityQueue);
-
-            var codes = new Dictionary<char, string>();
-            GenerateCodesRecursive(root, "", codes);
-            return codes;
+            _huffmanProcessingData = huffmanProcessingData;
+            _huffmanEncodingService = huffmanEncodingService;
+            _huffmanTreeBuilderService = huffmanTreeBuilderService;
         }
 
-        // Zlicza częstotliwość wystąpienia znaków
-        public Dictionary<char, int> CalculateOccurrenceFrequency(string inputText)
+        // Method to encode the input text using Huffman encoding
+        public void EncodeText()
         {
-            return inputText.GroupBy(c => c).ToDictionary(g => g.Key, g => g.Count());
-        }
+            // Check if the input text is null or empty
+            if (string.IsNullOrEmpty(_huffmanProcessingData.InputText))
+                throw new ArgumentException("InputText cannot be null or empty.");
 
-        // Tworzy kolejkę priorytetową na podstawie częstotliwości znaków
-        public PriorityQueue<HuffmanNode, int> GeneratePriorityQueue(Dictionary<char, int> frequencyDictionary)
-        {
-            var priorityQueue = new PriorityQueue<HuffmanNode, int>(Comparer<int>.Create((x, y) => x.CompareTo(y))); // Min-heap
-            foreach (var entry in frequencyDictionary)
+            _huffmanProcessingData.IsPending = true; // Mark the encoding process as pending
+            _huffmanProcessingData.DecodedText = ""; // Clear the decoded text (if any)
+
+            // Generate frequencies of character occurrences in the input text
+            _huffmanProcessingData.HuffmanFrequencies = _huffmanEncodingService.CalculateOccurrenceFrequency(_huffmanProcessingData.InputText);
+
+            // Generate a priority queue based on character frequencies
+            _huffmanProcessingData.HuffmanPriorityQueue = _huffmanEncodingService.GeneratePriorityQueue(_huffmanProcessingData.HuffmanFrequencies);
+
+            // Generate the Huffman tree based on the priority queue
+            _huffmanProcessingData.HuffmanTree = _huffmanTreeBuilderService.GenerateHuffmanTree(_huffmanProcessingData.HuffmanPriorityQueue);
+
+            _huffmanProcessingData.HuffmanCodes = new Dictionary<char, string>(); // Initialize the dictionary to store Huffman codes
+
+            // Recursively generate Huffman codes for each character in the tree
+            _huffmanTreeBuilderService.GenerateCodesRecursive(_huffmanProcessingData.HuffmanTree, "", _huffmanProcessingData.HuffmanCodes);
+
+            // Generate the encoded text by joining Huffman codes for each character in the input text
+            _huffmanProcessingData.EncodedText = string.Join("", _huffmanProcessingData.InputText.Select(c =>
             {
-                priorityQueue.Enqueue(new HuffmanNode { Symbol = entry.Key, Frequency = entry.Value }, entry.Value);
-            }
-            return priorityQueue;
-        }
-
-        // Generuje drzewo Huffmana
-        public HuffmanNode GenerateHuffmanTree(PriorityQueue<HuffmanNode, int> priorityQueue)
-        {
-            while (priorityQueue.Count > 1)
-            {
-                var left = priorityQueue.Dequeue();
-                var right = priorityQueue.Dequeue();
-                var parent = new HuffmanNode
+                // If the Huffman code exists for the character, return it, otherwise return an empty string
+                if (_huffmanProcessingData.HuffmanCodes.ContainsKey(c))
                 {
-                    Frequency = left.Frequency + right.Frequency,
-                    Left = left,
-                    Right = right
-                };
-                priorityQueue.Enqueue(parent, parent.Frequency);
-            }
-
-            return priorityQueue.Dequeue();
-        }
-
-        // Rekurencyjnie generuje kody binarne Huffmana
-        public void GenerateCodesRecursive(HuffmanNode node, string currentCode, Dictionary<char, string> codes)
-        {
-            if (node == null) return;
-
-            if (node.Symbol != '\0')
-            {
-                codes[node.Symbol] = currentCode;
-            }
-
-            GenerateCodesRecursive(node.Left!, currentCode + "0", codes);
-            GenerateCodesRecursive(node.Right!, currentCode + "1", codes);
-        }
-
-        // Generuje .dot dla drzewa Huffmana
-        public string GenerateDot(HuffmanNode root)
-        {
-            var graph = new DotGraph().WithIdentifier("HuffmanTree").Directed();
-
-            void AddNodeRecursive(HuffmanNode node, DotGraph dotGraph)
-            {
-                if (node == null) return;
-
-                // Generowanie unikalnego identyfikatora dla węzła
-                var currentNodeIdentifier = node.Symbol != '\0'
-                    ? $"{node.Symbol}" // Jeśli symbol istnieje
-                    : $"Node_{node.Frequency}"; // Jeśli to węzeł wewnętrzny
-
-                var currentNode = new DotNode()
-                    .WithIdentifier(currentNodeIdentifier)
-                    .WithLabel(node.Symbol != '\0' ? $"{node.Symbol}:{node.Frequency}" : $"{node.Frequency}")
-                    .WithShape(DotNodeShape.Ellipse);
-
-                dotGraph.Add(currentNode);
-
-                if (node.Left != null)
-                {
-                    var leftNodeIdentifier = node.Left.Symbol != '\0'
-                        ? $"{node.Left.Symbol}" // Symbol liścia
-                        : $"Node_{node.Left.Frequency}"; // Węzeł wewnętrzny
-
-                    var edge = new DotEdge()
-                        .From(currentNodeIdentifier)
-                        .To(leftNodeIdentifier)
-                        .WithLabel("0"); // Lewa krawędź (0)
-
-                    dotGraph.Add(edge);
-                    AddNodeRecursive(node.Left, dotGraph);
+                    return _huffmanProcessingData.HuffmanCodes[c];
                 }
-
-                if (node.Right != null)
+                else
                 {
-                    var rightNodeIdentifier = node.Right.Symbol != '\0'
-                        ? $"{node.Right.Symbol}" // Symbol liścia
-                        : $"Node_{node.Right.Frequency}"; // Węzeł wewnętrzny
+                    return ""; // Return a default value (e.g., an empty string) if no code is found for the character
+                }
+            }));
 
-                    var edge = new DotEdge()
-                        .From(currentNodeIdentifier)
-                        .To(rightNodeIdentifier)
-                        .WithLabel("1"); // Prawa krawędź (1)
+            _huffmanProcessingData.IsPending = false; // Mark the encoding process as complete
+            OnChange?.Invoke(); // Trigger an event to notify listeners that the encoding is done
+        }
 
-                    dotGraph.Add(edge);
-                    AddNodeRecursive(node.Right, dotGraph);
+        // Method to encode binary data using Huffman encoding
+        public void EncodeBinaryData(byte[] inputData)
+        {
+            // Check if the input binary data is null or empty
+            if (inputData == null || inputData.Length == 0)
+            {
+                throw new ArgumentException("Input binary data cannot be null or empty.");
+            }
+
+            _huffmanProcessingData.IsPending = true; // Mark the encoding process as pending
+            _huffmanProcessingData.EncodedBinaryData = null; // Clear any previously encoded binary data
+
+            // Calculate the frequency of byte occurrences in the input binary data
+            _huffmanProcessingData.HuffmanBinaryFrequencies = _huffmanEncodingService.CalculateOccurrenceFrequency(inputData);
+
+            // Generate a priority queue based on byte frequencies
+            _huffmanProcessingData.HuffmanPriorityQueue = _huffmanEncodingService.GeneratePriorityQueue(_huffmanProcessingData.HuffmanBinaryFrequencies);
+
+            // Generate the Huffman tree for binary data
+            _huffmanProcessingData.HuffmanTree = _huffmanTreeBuilderService.GenerateHuffmanTree(_huffmanProcessingData.HuffmanPriorityQueue);
+
+            // Generate Huffman codes for each byte
+            _huffmanProcessingData.HuffmanBinaryCodes = new Dictionary<byte, string>();
+            _huffmanTreeBuilderService.GenerateCodesRecursive(_huffmanProcessingData.HuffmanTree, "", _huffmanProcessingData.HuffmanBinaryCodes);
+
+            // Encode the input binary data by converting each byte into its corresponding Huffman code
+            var encodedBits = new List<byte>();
+            foreach (var b in inputData)
+            {
+                if (_huffmanProcessingData.HuffmanBinaryCodes.TryGetValue(b, out var code))
+                {
+                    // Convert each bit in the Huffman code to a byte (1 or 0)
+                    encodedBits.AddRange(code.Select(c => c == '1' ? (byte)1 : (byte)0));
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Byte {b} not found in Huffman codes.");
                 }
             }
 
-
-            AddNodeRecursive(root, graph);
-
-            // Kompilacja do DOT
-            using var writer = new StringWriter();
-            var context = new CompilationContext(writer, new CompilationOptions());
-            graph.CompileAsync(context).GetAwaiter().GetResult();
-
-            return writer.ToString();
+            // Store the encoded binary data as a byte array
+            _huffmanProcessingData.EncodedBinaryData = encodedBits.ToArray();
+            _huffmanProcessingData.IsPending = false; // Mark the encoding process as complete
+            OnChange?.Invoke(); // Trigger an event to notify listeners that the encoding is done
         }
-
-        // Rekurencyjne generowanie .dot
-        public void GenerateDotRecursive(HuffmanNode node, StringBuilder dotBuilder)
-        {
-            if (node == null) return;
-
-            string currentId = $"node{nodeIdCounter++}"; // Unikalny identyfikator węzła
-
-            // Dodajemy węzeł do grafu
-            if (node.Symbol != '\0')
-            {
-                dotBuilder.AppendLine($"\"{currentId}\" [label=\"{node.Symbol}:{node.Frequency}\"];");
-            }
-            else
-            {
-                dotBuilder.AppendLine($"\"{currentId}\" [label=\"{node.Frequency}\", shape=ellipse];");
-            }
-
-            if (node.Left != null)
-            {
-                string leftId = $"node{nodeIdCounter}";
-                dotBuilder.AppendLine($"\"{currentId}\" -> \"{leftId}\";");
-                GenerateDotRecursive(node.Left, dotBuilder);
-            }
-
-            if (node.Right != null)
-            {
-                string rightId = $"node{nodeIdCounter}";
-                dotBuilder.AppendLine($"\"{currentId}\" -> \"{rightId}\";");
-                GenerateDotRecursive(node.Right, dotBuilder);
-            }
-        }
-
-        // Dekodowanie zakodowanego tekstu
-        public string DecodeHuffmanData(string encodedData, HuffmanNode root)
-        {
-            var decodedText = new StringBuilder();
-            var currentNode = root;
-
-            foreach (var bit in encodedData)
-            {
-                currentNode = bit == '0' ? currentNode?.Left : currentNode?.Right;
-
-                if (currentNode?.Left == null && currentNode?.Right == null)
-                {
-                    decodedText.Append(currentNode?.Symbol);
-                    currentNode = root; // Resetujemy do korzenia
-                }
-            }
-
-            return decodedText.ToString();
-        }
-
-
-
     }
 }

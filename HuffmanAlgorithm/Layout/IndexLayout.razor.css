@@ -3,10 +3,10 @@
     flex-direction: column;
     align-items: center;
     margin: 0 auto;
-    width:100vw;
-    max-width:100%;
-    height:100vh;
-    max-height:100%;
+    width: 100vw;
+    max-width: 100%;
+    height: 100vh;
+    max-height: 100%;
     background-color: #664343;
-    color: #e0d75f;
+    color: #ECDFCC;
 }

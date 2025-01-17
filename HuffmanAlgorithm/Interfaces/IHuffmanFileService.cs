@@ -3,7 +3,7 @@ namespace HuffmanAlgorithm.Interfaces
 {
     public interface IHuffmanFileService
     {
-         Task<string> ReadFileAsync(string filePath);
-         Task SaveEncodedDataAsync(string filePath, string encodedData);
+        Task<byte[]> ReadBinaryFileAsync(string filePath);
+        Task SaveEncodedBinaryDataAsync(string filePath, byte[] encodedData);
     }
 }

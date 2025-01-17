@@ -1,22 +1,21 @@
-﻿// HuffmanFileService.cs
-using HuffmanAlgorithm.Interfaces;
-using System.IO;
-using System.Threading.Tasks;
+﻿using HuffmanAlgorithm.Interfaces;
 
 namespace HuffmanAlgorithm.Services
 {
-    public class HuffmanFileService: IHuffmanFileService
+    public class HuffmanFileService : IHuffmanFileService
     {
-        // Odczytanie pliku jako tekst
-        public async Task<string> ReadFileAsync(string filePath)
+        // Method to read a file as binary data (byte array)
+        public async Task<byte[]> ReadBinaryFileAsync(string filePath)
         {
-            return await File.ReadAllTextAsync(filePath);
+            // Read the entire file and return it as a byte array
+            return await File.ReadAllBytesAsync(filePath);
         }
 
-        // Zapisanie zakodowanych danych do pliku
-        public async Task SaveEncodedDataAsync(string filePath, string encodedData)
+        // Method to save the encoded binary data to a file
+        public async Task SaveEncodedBinaryDataAsync(string filePath, byte[] encodedData)
         {
-             await File.WriteAllTextAsync(filePath, encodedData);
+            // Write the encoded binary data to the specified file
+            await File.WriteAllBytesAsync(filePath, encodedData);
         }
     }
 }
