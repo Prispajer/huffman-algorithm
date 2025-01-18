@@ -7,22 +7,22 @@
 @inject HuffmanProcessingData _huffmanProcessingData
 @implements IDisposable
 
-<div class="huffman-encoder-component-textarea-wrapper">
-    <div class="huffman-encoder-component-textarea-item">
-        <h4 class="huffman-encoder-component-textarea-label">Text to encode</h4>
+<div class="huffman-data-processing-component-textarea-wrapper">
+    <div class="huffman-data-processing-component-textarea-item">
+        <h4 class="huffman-data-processing-component-textarea-label">Text to encode</h4>
         <textarea @bind="_huffmanProcessingData.InputText" rows="4" placeholder="Enter text to encode"></textarea>
     </div>
-    <div class="huffman-encoder-component-textarea-item">
+    <div class="huffman-data-processing-component-textarea-item">
         <button @onclick="HuffmanEncoderService.EncodeText" disabled="@_huffmanProcessingData.IsPending">Encode</button>
         <button @onclick="HuffmanDecoderService.DecodeText" disabled="@_huffmanProcessingData.IsPending">Decode</button>
     </div>
-    <div class="huffman-encoder-component-textarea-item">
-        <h4 class="huffman-encoder-component-textarea-label">Encoded text</h4>
+    <div class="huffman-data-processing-component-textarea-item">
+        <h4 class="huffman-data-processing-component-textarea-label">Encoded text</h4>
         <textarea @bind="_huffmanProcessingData.EncodedText" disabled="disabled" rows="4" placeholder="Encoded text"></textarea>
     </div>
 </div>
-<div class="huffman-encoder-component-textarea-item">
-    <h4 class="huffman-encoder-component-textarea-label">Decoded text</h4>
+<div class="huffman-data-processing-component-textarea-item">
+    <h4 class="huffman-data-processing-component-textarea-label">Decoded text</h4>
     <textarea @bind="_huffmanProcessingData.DecodedText" disabled="disabled" rows="4" placeholder="Decoded text"></textarea>
 </div>
 

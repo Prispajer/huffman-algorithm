@@ -38,7 +38,7 @@ namespace HuffmanAlgorithm.Services
             var root = _huffmanTreeBuilderService.GenerateHuffmanTree(priorityQueue);
 
             // Decode the encoded text using the Huffman tree's root
-            _huffmanProcessingData.DecodedText = _huffmanDecodingService.DecodeHuffmanData(_huffmanProcessingData.EncodedText, root);
+            _huffmanProcessingData.DecodedText = _huffmanDecodingService.DecodeHuffmanData(_huffmanProcessingData.EncodedText, root, _huffmanProcessingData.InputText);
 
             // Notify listeners that the state has changed (this could trigger UI updates, etc.)
             OnChange?.Invoke();

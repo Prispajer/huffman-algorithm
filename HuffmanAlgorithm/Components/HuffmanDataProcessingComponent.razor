@@ -1,5 +1,6 @@
 ﻿@using HuffmanAlgorithm.Services
 @using HuffmanAlgorithm.Interfaces
+@using HuffmanAlgorithm.Components
 @using HuffmanAlgorithm.Models
 @inject IJSRuntime JSRuntime
 @inject IHuffmanEncoderService HuffmanEncoderService
@@ -7,8 +8,15 @@
 @inject HuffmanProcessingData _huffmanProcessingData
 @implements IDisposable
 
-<div class="huffman-encoder-component-summary-wrapper">
-    <div class="huffman-encoder-component-summary-frequency">
+
+
+<h3 class="huffman-data-processing-component-title">Huffman Encoder & Decoder</h3>
+<div class="huffman-data-processing-component-textarea-container">
+    <HuffmanTextAreaComponent />
+</div>
+<div class="huffman-data-processing-component-summary-container">
+    <div class="huffman-data-processing-component-summary-wrapper">
+    <div class="huffman-data-processing-component-summary-frequency">
         <h4>Character Occurrence Count</h4>
         @if (_huffmanProcessingData.HuffmanFrequencies != null)
         {
@@ -39,10 +47,10 @@
             <p>No huffman codes generated.</p>
         }
     </div>
-    <div class="huffman-encoder-component-summary-huffman-tree-container">
-        <div class="huffman-encoder-component-summary-dot-graph-wrapper">
+    <div class="huffman-data-processing-component-summary-huffman-tree-container">
+        <div class="huffman-data-processing-component-summary-dot-graph-wrapper">
             <h4>DOT representation of Huffman Tree</h4>
-            <div class="huffman-encoder-component-summary-dot-graph">
+            <div class="huffman-data-processing-component-summary-dot-graph">
                 @if (!string.IsNullOrEmpty(DotGraph))
                 {
                     <pre>@DotGraph</pre>
@@ -54,9 +62,9 @@
             </div>
 
         </div>
-        <div class="huffman-encoder-component-summary-huffman-tree-wrapper">
+        <div class="huffman-data-processing-component-summary-huffman-tree-wrapper">
             <h4>GRAPH representation of Huffman Tree</h4>
-            <div id="huffman-encoder-component-summary-huffman-tree">
+            <div id="huffman-data-processing-component-summary-huffman-tree">
                 @if (!string.IsNullOrEmpty(DotGraph))
                 {
                     <pre></pre>
@@ -66,28 +74,43 @@
                     <p>No GRAPH Tree generated yet.</p>
                 }
             </div>
-
         </div>
     </div>
 </div>
-<div class="huffman-encoder-component-summary-button">
+</div>
+<div class="huffman-data-processing-component-summary-button">
     <button @onclick="RenderGraph">Display Huffman Tree</button>
 </div>
 
 
 
+@if (_huffmanProcessingData.IsPending)
+{
+    <p>Coding is pending...</p>
+}
+
 @code {
+    private string? _previousInputText;
     private string? DotGraph;
 
     private async Task RenderGraph()
     {
         if (string.IsNullOrEmpty(_huffmanProcessingData.InputText)) return;
 
-        // Generating code of DOT
-        DotGraph = HuffmanGraphService.GenerateDot(_huffmanProcessingData.HuffmanTree ?? new HuffmanNode());
+        if (_huffmanProcessingData.InputText != _previousInputText)
+        {
+            _huffmanProcessingData.NodeIdCounter = 0;
 
+            DotGraph = HuffmanGraphService.GenerateDot(_huffmanProcessingData.HuffmanTree ?? new HuffmanNode());
 
-        await JSRuntime.InvokeVoidAsync("vizRenderGraph", DotGraph);
+            _previousInputText = _huffmanProcessingData.InputText;
+
+            await JSRuntime.InvokeVoidAsync("vizRenderGraph", DotGraph);
+        }
+        else
+        {
+            Console.WriteLine("No changes detected, skipping tree generation.");
+        }
 
         _huffmanProcessingData.IsPending = false;
 
@@ -102,4 +125,5 @@
     {
         HuffmanEncoderService.OnChange -= StateHasChanged;
     }
+
 }

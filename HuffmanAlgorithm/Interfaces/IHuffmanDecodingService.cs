@@ -4,6 +4,6 @@ namespace HuffmanAlgorithm.Interfaces
 {
     public interface IHuffmanDecodingService
     {
-        string DecodeHuffmanData(string encodedData, HuffmanNode root);
+        string DecodeHuffmanData(string encodedData, HuffmanNode root, string originalText);
     }
 }

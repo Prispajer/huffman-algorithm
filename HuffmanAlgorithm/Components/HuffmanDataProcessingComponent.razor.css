@@ -1,0 +1,220 @@
+﻿﻿.huffman-data-processing-component-title {
+    text-align: center;
+    font-size: 64px;
+    color: #ECDFCC;
+    cursor: default;
+}
+
+
+.huffman-data-processing-component-textarea-container {
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    padding: 0 0 20px 0;
+    text-align: center;
+    background-color: #795757;
+}
+
+.huffman-data-processing-component-summary-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #472e2e;
+    width: 100%;
+}
+
+.huffman-data-processing-component-summary-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 5fr;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.huffman-data-processing-component-summary-wrapper button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.huffman-data-processing-component-summary-frequency {
+    height: min-content;
+    padding: 20px;
+    margin: 20px;
+    background-color: #664343;
+    color: #333;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #ECDFCC;
+    font-size: 18px;
+    cursor: default;
+}
+
+.huffman-data-processing-component-summary-frequency h4 {
+    font-size: 20px;
+}
+
+.huffman-data-processing-component-summary-frequency ul {
+    list-style-type: none;
+    padding: 0;
+    cursor: default;
+}
+
+.huffman-data-processing-component-summary-frequency li {
+    color: #C2675C;
+    background-color: #ECDFCC;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.huffman-data-processing-component-summary-huffman-tree-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    gap: 20px;
+}
+
+.huffman-data-processing-component-summary-huffman-tree-container h4 {
+    padding: 0 0 10px 0;
+    font-size: 20px;
+}
+
+.huffman-data-processing-component-summary-dot-graph-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    color: #ECDFCC;
+    font-size: 18px;
+}
+
+.huffman-data-processing-component-summary-dot-graph-wrapper pre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
+}
+
+.huffman-data-processing-component-summary-dot-graph {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    color: #ECDFCC;
+    font-size: 18px;
+}
+
+
+.huffman-data-processing-component-summary-dot-graph h4 {
+    text-align: center;
+    padding: 0 0 10px 0;
+}
+
+.huffman-data-processing-component-summary-huffman-tree-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    color: #ECDFCC;
+    font-size: 18px;
+}
+
+#huffman-data-processing-component-summary-huffman-tree {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    color: #ECDFCC;
+    font-size: 18px;
+}
+
+.huffman-data-processing-component-summary-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px 0;
+    outline: none;
+    border-radius: 18px;
+    background-color: transparent;
+    border-color: #EAD8B1;
+    cursor: pointer;
+}
+
+.huffman-data-processing-component-summary-button button {
+    padding: 10px 20px;
+    outline: none;
+    border-radius: 18px;
+    font-size: 18px;
+    background-color: #ECDFCC;
+    border-color: #EAD8B1;
+    cursor: pointer;
+}
+
+@media only screen and (max-width: 580px) {
+    .huffman-data-processing-component-summary-wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    .huffman-data-processing-component-summary-button button {
+        font-size: 16px;
+    }
+
+    .huffman-data-processing-component-summary-huffman-tree-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .huffman-data-processing-component-summary-frequency h4 {
+        font-size: 18px;
+    }
+
+    .huffman-data-processing-component-summary-huffman-tree-container h4 {
+        font-size: 18px;
+    }
+}
+
+@media (min-width: 580px) and (max-width: 850px) {
+    .huffman-data-processing-component-summary-huffman-tree-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+    }
+
+    .huffman-data-processing-component-summary-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+        max-width: 1200px;
+    }
+
+    .huffman-data-processing-component-summary-frequency h4 {
+        font-size: 18px;
+    }
+
+    .huffman-data-processing-component-summary-huffman-tree-container h4 {
+        font-size: 18px;
+    }
+}
+

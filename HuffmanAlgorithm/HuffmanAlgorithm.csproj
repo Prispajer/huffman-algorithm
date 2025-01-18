@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Components\HuffmanSummaryComponent.razor.css" />
+    <None Remove="Components\HuffmanDataProcessingComponent.razor.css" />
     <None Remove="Components\HuffmanTextAreaComponent.razor.css" />
     <None Remove="Pages\Index.razor.css" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Components\HuffmanSummaryComponent.razor.css" />
+    <Content Include="Components\HuffmanDataProcessingComponent.razor.css" />
     <Content Include="Components\HuffmanTextAreaComponent.razor.css" />
     <Content Include="Pages\Index.razor.css" />
   </ItemGroup>

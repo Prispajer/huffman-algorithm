@@ -1,11 +1,11 @@
 ﻿using HuffmanAlgorithm.Models;
-using System.Text;
+using DotNetGraph.Core;
 
 namespace HuffmanAlgorithm.Interfaces
 {
     public interface IHuffmanGraphService
     {
         string GenerateDot(HuffmanNode root);
-        void GenerateDotRecursive(HuffmanNode node, StringBuilder dotBuilder);
+        void AddNodeRecursive(HuffmanNode node, DotGraph dotGraph);
     }
 }

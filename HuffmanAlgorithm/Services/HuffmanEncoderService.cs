@@ -5,7 +5,7 @@ namespace HuffmanAlgorithm.Services
 {
     public class HuffmanEncoderService : IHuffmanEncoderService
     {
-        private readonly HuffmanProcessingData _huffmanProcessingData;
+        private HuffmanProcessingData _huffmanProcessingData;
         private readonly IHuffmanTreeBuilderService _huffmanTreeBuilderService;
         private readonly IHuffmanEncodingService _huffmanEncodingService;
         public event Action? OnChange;
@@ -24,89 +24,86 @@ namespace HuffmanAlgorithm.Services
         // Method to encode the input text using Huffman encoding
         public void EncodeText()
         {
-            // Check if the input text is null or empty
+            // Check if the input data is empty or null
             if (string.IsNullOrEmpty(_huffmanProcessingData.InputText))
                 throw new ArgumentException("InputText cannot be null or empty.");
 
-            _huffmanProcessingData.IsPending = true; // Mark the encoding process as pending
-            _huffmanProcessingData.DecodedText = ""; // Clear the decoded text (if any)
+            _huffmanProcessingData.IsPending = true; // Mark the encoding process as ongoing
+            _huffmanProcessingData.DecodedText = ""; // Clear previous decoded data
 
-            // Generate frequencies of character occurrences in the input text
-            _huffmanProcessingData.HuffmanFrequencies = _huffmanEncodingService.CalculateOccurrenceFrequency(_huffmanProcessingData.InputText);
+            // Convert the input text to lowercase, while keeping the original for later decoding
+            var inputTextLower = _huffmanProcessingData.InputText.ToLower();
 
-            // Generate a priority queue based on character frequencies
+            // Calculate the frequency of occurrences for lowercase letters
+            _huffmanProcessingData.HuffmanFrequencies = _huffmanEncodingService.CalculateOccurrenceFrequency(inputTextLower);
+
+            // Generate the priority queue based on the occurrence frequency
             _huffmanProcessingData.HuffmanPriorityQueue = _huffmanEncodingService.GeneratePriorityQueue(_huffmanProcessingData.HuffmanFrequencies);
 
-            // Generate the Huffman tree based on the priority queue
+            // Build the Huffman tree from the priority queue
             _huffmanProcessingData.HuffmanTree = _huffmanTreeBuilderService.GenerateHuffmanTree(_huffmanProcessingData.HuffmanPriorityQueue);
 
-            _huffmanProcessingData.HuffmanCodes = new Dictionary<char, string>(); // Initialize the dictionary to store Huffman codes
+            _huffmanProcessingData.HuffmanCodes = new Dictionary<char, string>(); // Initialize the dictionary for Huffman codes
 
-            // Recursively generate Huffman codes for each character in the tree
+            // Recursively generate Huffman codes for each symbol in the tree
             _huffmanTreeBuilderService.GenerateCodesRecursive(_huffmanProcessingData.HuffmanTree, "", _huffmanProcessingData.HuffmanCodes);
 
-            // Generate the encoded text by joining Huffman codes for each character in the input text
-            _huffmanProcessingData.EncodedText = string.Join("", _huffmanProcessingData.InputText.Select(c =>
+            // Generate the encoded text using Huffman codes based on lowercase letters
+            _huffmanProcessingData.EncodedText = string.Join("", inputTextLower.Select(c =>
             {
-                // If the Huffman code exists for the character, return it, otherwise return an empty string
-                if (_huffmanProcessingData.HuffmanCodes.ContainsKey(c))
-                {
-                    return _huffmanProcessingData.HuffmanCodes[c];
-                }
-                else
-                {
-                    return ""; // Return a default value (e.g., an empty string) if no code is found for the character
-                }
+                // If a Huffman code exists for this symbol, return it, otherwise return an empty string
+                return _huffmanProcessingData.HuffmanCodes.ContainsKey(c) ? _huffmanProcessingData.HuffmanCodes[c] : "";
             }));
 
-            _huffmanProcessingData.IsPending = false; // Mark the encoding process as complete
-            OnChange?.Invoke(); // Trigger an event to notify listeners that the encoding is done
+            _huffmanProcessingData.IsPending = false; // Mark the encoding process as finished
+            OnChange?.Invoke(); // Trigger the event to notify that encoding is completed
         }
 
         // Method to encode binary data using Huffman encoding
         public void EncodeBinaryData(byte[] inputData)
         {
-            // Check if the input binary data is null or empty
-            if (inputData == null || inputData.Length == 0)
-            {
-                throw new ArgumentException("Input binary data cannot be null or empty.");
-            }
+            Console.WriteLine("Starting binary data encoding...");
+            Console.WriteLine($"Input data size: {inputData.Length} bytes");
 
-            _huffmanProcessingData.IsPending = true; // Mark the encoding process as pending
-            _huffmanProcessingData.EncodedBinaryData = null; // Clear any previously encoded binary data
-
-            // Calculate the frequency of byte occurrences in the input binary data
+            // Calculate frequency occurrences for binary data
             _huffmanProcessingData.HuffmanBinaryFrequencies = _huffmanEncodingService.CalculateOccurrenceFrequency(inputData);
+            Console.WriteLine("Binary frequencies calculated.");
 
-            // Generate a priority queue based on byte frequencies
+            // Generate the priority queue for binary data
             _huffmanProcessingData.HuffmanPriorityQueue = _huffmanEncodingService.GeneratePriorityQueue(_huffmanProcessingData.HuffmanBinaryFrequencies);
+            Console.WriteLine("Binary priority queue generated.");
 
             // Generate the Huffman tree for binary data
             _huffmanProcessingData.HuffmanTree = _huffmanTreeBuilderService.GenerateHuffmanTree(_huffmanProcessingData.HuffmanPriorityQueue);
+            Console.WriteLine("Binary Huffman tree generated.");
 
-            // Generate Huffman codes for each byte
-            _huffmanProcessingData.HuffmanBinaryCodes = new Dictionary<byte, string>();
+            _huffmanProcessingData.HuffmanBinaryCodes = new Dictionary<byte, string>(); // Initialize dictionary for binary Huffman codes
             _huffmanTreeBuilderService.GenerateCodesRecursive(_huffmanProcessingData.HuffmanTree, "", _huffmanProcessingData.HuffmanBinaryCodes);
+            Console.WriteLine("Binary Huffman codes generated.");
 
-            // Encode the input binary data by converting each byte into its corresponding Huffman code
+            Console.WriteLine("Encoding binary data...");
             var encodedBits = new List<byte>();
+
+            // Convert input data to Huffman encoded bits
             foreach (var b in inputData)
             {
                 if (_huffmanProcessingData.HuffmanBinaryCodes.TryGetValue(b, out var code))
                 {
-                    // Convert each bit in the Huffman code to a byte (1 or 0)
                     encodedBits.AddRange(code.Select(c => c == '1' ? (byte)1 : (byte)0));
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Byte {b} not found in Huffman codes.");
                 }
             }
 
-            // Store the encoded binary data as a byte array
+            // Print out the generated Huffman codes for binary data
+            Console.WriteLine("Generated Huffman codes:");
+            foreach (var kvp in _huffmanProcessingData.HuffmanBinaryCodes)
+            {
+                Console.WriteLine($"Byte: {kvp.Key}, Code: {kvp.Value}");
+            }
+
+            // Store the encoded binary data
             _huffmanProcessingData.EncodedBinaryData = encodedBits.ToArray();
-            _huffmanProcessingData.IsPending = false; // Mark the encoding process as complete
-            OnChange?.Invoke(); // Trigger an event to notify listeners that the encoding is done
+            Console.WriteLine("Binary data encoding completed.");
+            Console.WriteLine($"Encoded binary data length: {_huffmanProcessingData.EncodedBinaryData.Length}");
         }
     }
 }

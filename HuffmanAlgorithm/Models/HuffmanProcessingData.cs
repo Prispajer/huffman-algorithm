@@ -6,9 +6,7 @@
         public string? EncodedText { get; set; } = ""; // The result of the encoded text
         public string? DecodedText { get; set; } = ""; // The result of the decoded text
         public bool IsPending { get; set; } = false; // Flag indicating if the process is ongoing
-
-        // For handling binary data
-        public byte[]? InputBinaryData { get; set; } = null; // Input binary data (for images, etc.)
+        public int NodeIdCounter { get; set; } = 0; // Counter for generating unique IDs
         public byte[]? EncodedBinaryData { get; set; } = null; // Encoded binary data
         public Dictionary<byte, int>? HuffmanBinaryFrequencies { get; set; } // Frequencies for binary data
         public Dictionary<byte, string>? HuffmanBinaryCodes { get; set; } // Binary Huffman codes
