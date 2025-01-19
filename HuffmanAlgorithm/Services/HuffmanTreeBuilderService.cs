@@ -6,73 +6,50 @@ namespace HuffmanAlgorithm.Services
     // This class is responsible for building the Huffman tree and generating Huffman codes for characters and bytes
     public class HuffmanTreeBuilderService : IHuffmanTreeBuilderService
     {
-        // Method to generate the Huffman tree from the priority queue (works for both char and byte)
+        // Method to generate the Huffman tree from the priority queue (works for both characters and bytes)
         public HuffmanNode GenerateHuffmanTree(PriorityQueue<HuffmanNode, int> priorityQueue)
         {
-            Console.WriteLine("Starting to build the Huffman tree...");
-
-            // Check if the queue has more than one element
+            // Continue until there is only one node left in the priority queue
             while (priorityQueue.Count > 1)
             {
-                // Dequeue two smallest elements (lowest frequencies)
+                // Dequeue the two nodes with the lowest frequencies
                 var left = priorityQueue.Dequeue();
                 var right = priorityQueue.Dequeue();
 
-                Console.WriteLine($"Dequeue left node with frequency: {left.Frequency}, right node with frequency: {right.Frequency}");
-
-                // Create a new parent node that combines the two smallest elements
+                // Create a new parent node combining the two nodes
                 var parent = new HuffmanNode
                 {
-                    Frequency = left.Frequency + right.Frequency,
-                    Left = left,
-                    Right = right
+                    Frequency = left.Frequency + right.Frequency, // Sum the frequencies of the two nodes
+                    Left = left, // Assign the left child
+                    Right = right // Assign the right child
                 };
 
-                // Enqueue the new parent node back into the priority queue
+                // Enqueue the new parent node back into the priority queue with its combined frequency
                 priorityQueue.Enqueue(parent, parent.Frequency);
-
-                Console.WriteLine($"Enqueue parent node with combined frequency: {parent.Frequency}");
             }
 
-            // Return the last remaining element, which is the root of the Huffman tree
+            // The last remaining node in the queue is the root of the Huffman tree
             var root = priorityQueue.Dequeue();
-            Console.WriteLine("Huffman tree built successfully!");
             return root;
         }
 
-        // Recursive method to generate Huffman codes for characters (char version)
+        // Recursive method to generate Huffman codes for characters
         public void GenerateCodesRecursive(HuffmanNode node, string currentCode, Dictionary<char, string> codes)
         {
+            // Base case: return if the node is null
             if (node == null) return;
 
-            // If the node represents a character (not an internal node), assign the current code to the character
-            if (node.Symbol != '\0')
+            // If the node represents a character (it's a leaf node), assign the current code
+            if (node.Symbol != '\0') // '\0' indicates an internal node without a specific character
             {
                 codes[node.Symbol] = currentCode;
-                Console.WriteLine($"Generated code for character '{node.Symbol}': {currentCode}");
             }
 
-            // Recursively generate code for the left child node, appending '0' to the current code
+            // Recursively generate codes for the left child by appending '0' to the current code
             GenerateCodesRecursive(node.Left!, currentCode + "0", codes);
 
-            // Recursively generate code for the right child node, appending '1' to the current code
+            // Recursively generate codes for the right child by appending '1' to the current code
             GenerateCodesRecursive(node.Right!, currentCode + "1", codes);
         }
-
-        // Recursive method to generate Huffman codes for bytes (byte version)
-        public void GenerateCodesRecursive(HuffmanNode node, string currentCode, Dictionary<byte, string> codes)
-        {
-            if (node == null) return;
-
-            if (node.Symbol != '\0') // Upewnij się, że symbol jest poprawnie przypisany
-            {
-                codes[(byte)node.Symbol] = currentCode;
-                Console.WriteLine($"Generated code for byte '{(byte)node.Symbol}': {currentCode}");
-            }
-
-            GenerateCodesRecursive(node.Left, currentCode + "0", codes);
-            GenerateCodesRecursive(node.Right, currentCode + "1", codes);
-        }
-
     }
 }

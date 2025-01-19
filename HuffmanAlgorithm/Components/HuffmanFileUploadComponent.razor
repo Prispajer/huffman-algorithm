@@ -2,60 +2,76 @@
 @using HuffmanAlgorithm.Interfaces
 @using HuffmanAlgorithm.Models
 @inject IHuffmanEncoderService HuffmanEncoderService
-@inject HuffmanProcessingData _huffmanProcessingData
+@inject IHuffmanFileService HuffmanFileService
+@inject HuffmanProcessingData HuffmanProcessingData
 @implements IDisposable
 
 <div class="huffman-upload-file-component-wrapper">
     <h4 class="upload-title">Upload File for Huffman Coding</h4>
 
-    <InputFile OnChange="UploadFileAsync" />
+    <!-- Input for selecting a file -->
+    <InputFile OnChange="UploadAndReadFileAsync" />
     <br />
 
-    <button @onclick="ProcessTextFile" disabled="@(selectedFile == null || !IsTextFile)">Code Text File</button>
+    <!-- Button to encode text files -->
+    <button @onclick="ProcessFile" disabled="@(_selectedFile == null || !IsTextFile)">Code Text File</button>
+    <p>.txt format only</p>
     <br />
 
-    <button @onclick="ProcessImageFile" disabled="@(selectedFile == null || !IsImageFile)">Code Image File</button>
+    <!-- Button to encode image files -->
+    <button @onclick="ProcessFile" disabled="@(_selectedFile == null || !IsImageFile)">Code Image File</button>
+    <p>.jpg format only</p>
     <br />
 
-    <button @onclick="ProcessBinaryFile" disabled="@(selectedFile == null || IsImageFile || IsTextFile)">Code Binary File</button>
+    <!-- Button to encode binary files -->
+    <button @onclick="ProcessFile" disabled="@(_selectedFile == null || IsImageFile || IsTextFile)">Code Binary File</button>
+    <p>.bin format only</p>
 
-    @if (!string.IsNullOrEmpty(encodedBits))
+    <!-- Display error messages -->
+    @if (!string.IsNullOrEmpty(ErrorMessage))
     {
-        <div>
-            <h5>Encoded Binary Data:</h5>
-            <pre>@encodedBits</pre>
-        </div>
+        <p class="error-message">@ErrorMessage</p>
     }
-
 </div>
 
-@if (_huffmanProcessingData.IsPending)
+@if (HuffmanProcessingData.IsPending)
 {
-    <p>Trwa kodowanie...</p>
+    <!-- Display a message when encoding is in progress -->
+    <p>Encoding in progress...</p>
+}
+else if (!HuffmanProcessingData.IsPending && !string.IsNullOrEmpty(HuffmanProcessingData.InputText))
+{
+    <!-- Display a success message after encoding is complete -->
+    <p>Encoding was successful!</p>
 }
 
 @code {
-    private string encodedBits = "";
-    private string? encodedFileText = null;
-    private IBrowserFile? selectedFile;
+    // Holds the uploaded file
+    private IBrowserFile? _selectedFile;
 
+    // Error message to display to the user
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    // Maximum allowed file size (e.g., 5 MB)
+    private const long MaxFileSize = 5 * 1024 * 1024;
+
+    // Check if the selected file is a text file based on its extension
     private bool IsTextFile
     {
         get
         {
-            var fileName = selectedFile?.Name;
-            Console.WriteLine($"Checking if file is text file: {fileName}");
+            var fileName = _selectedFile?.Name;
             return !string.IsNullOrEmpty(fileName) &&
                    (fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase));
         }
     }
 
+    // Check if the selected file is an image file based on its extension
     private bool IsImageFile
     {
         get
         {
-            var fileName = selectedFile?.Name;
-            Console.WriteLine($"Checking if file is image file: {fileName}");
+            var fileName = _selectedFile?.Name;
             return !string.IsNullOrEmpty(fileName) &&
                    (fileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
                     fileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
@@ -64,153 +80,71 @@
         }
     }
 
-    private void ProcessTextFile()
+    // Method to handle file upload
+    private async Task UploadAndReadFileAsync(InputFileChangeEventArgs e)
     {
-        Console.WriteLine("Starting text file processing...");
+        var file = e.File;
 
-        if (encodedFileText == null)
+        if (file != null)
         {
-            if (!string.IsNullOrEmpty(_huffmanProcessingData.InputText))
+            // Check file size
+            if (file.Size > MaxFileSize)
             {
-                Console.WriteLine($"InputText: {_huffmanProcessingData.InputText}");
-                HuffmanEncoderService.EncodeText();
-                encodedFileText = _huffmanProcessingData.EncodedText;
-                Console.WriteLine($"EncodedText: {encodedFileText}");
-            }
-            else
-            {
-                encodedFileText = "Please upload a valid text file.";
-                Console.WriteLine(encodedFileText);
-            }
-        }
-    }
-
-    private async Task ProcessImageFile()
-    {
-        Console.WriteLine("Starting image file processing...");
-
-        if (selectedFile != null && IsImageFile)
-        {
-            Console.WriteLine($"File selected for image processing: {selectedFile.Name}");
-            var imageBytes = await ReadFileAsBytesAsync(selectedFile);
-            Console.WriteLine($"Image file read, size: {imageBytes.Length} bytes.");
-
-            try
-            {
-                _huffmanProcessingData.InputText = Convert.ToBase64String(imageBytes);
-                Console.WriteLine($"Encoded image data (Base64): {_huffmanProcessingData.InputText}");
-
-                HuffmanEncoderService.EncodeText(); 
-                encodedFileText = _huffmanProcessingData.EncodedText; 
-                Console.WriteLine($"EncodedText: {encodedFileText}");
-            }
-            catch (Exception ex)
-            {
-                encodedFileText = $"Error during encoding: {ex.Message}";
-                Console.WriteLine(encodedFileText);
-            }
-        }
-    }
-
-    private async Task ProcessBinaryFile()
-    {
-        Console.WriteLine("Starting binary file processing...");
-
-        if (selectedFile != null)
-        {
-            Console.WriteLine($"File selected for binary processing: {selectedFile.Name}");
-            var byteArray = await ReadFileAsBytesAsync(selectedFile);
-
-            Console.WriteLine($"Binary file read, size: {byteArray.Length} bytes.");
-
-            if (byteArray.Length == 0)
-            {
-                encodedFileText = "Failed to read binary file or file is empty.";
-                Console.WriteLine(encodedFileText);
+                ErrorMessage = "File is too large. Maximum allowed size is 5 MB.";
+                _selectedFile = null;
                 return;
             }
 
-            try
-            {
-                _huffmanProcessingData.InputText = Convert.ToBase64String(byteArray);
-                Console.WriteLine($"Encoded binary data (Base64): {_huffmanProcessingData.InputText}");
+            // Store the selected file
+            _selectedFile = file;
+            // Clear previous input text and encoded text
+            HuffmanProcessingData.InputText = string.Empty;
+            HuffmanProcessingData.EncodedText = null;
 
-            
-                HuffmanEncoderService.EncodeText(); 
-                encodedFileText = _huffmanProcessingData.EncodedText; 
-                Console.WriteLine($"EncodedText: {encodedFileText}");
-            }
-            catch (Exception ex)
-            {
-                encodedFileText = $"Error during encoding: {ex.Message}";
-                Console.WriteLine(encodedFileText);
-            }
-        }
-    }
-
-
-    private async Task<byte[]> ReadFileAsBytesAsync(IBrowserFile file)
-    {
-        try
-        {
-            using var stream = file.OpenReadStream();
-            using var memoryStream = new MemoryStream();
-            await stream.CopyToAsync(memoryStream);
-            Console.WriteLine($"Read file as bytes, size: {memoryStream.Length}");
-            return memoryStream.ToArray();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error reading file: {ex.Message}");
-            encodedFileText = $"Error reading file: {ex.Message}";
-            return Array.Empty<byte>();
-        }
-    }
-
-    private async Task ReadFileAsTextAsync(IBrowserFile file)
-    {
-        try
-        {
-            using var stream = file.OpenReadStream();
-            using var reader = new StreamReader(stream);
-            _huffmanProcessingData.InputText = await reader.ReadToEndAsync();
-            Console.WriteLine($"Read file as text, length: {_huffmanProcessingData.InputText?.Length}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error reading text file: {ex.Message}");
-        }
-    }
-
-    private async Task UploadFileAsync(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-        if (file != null)
-        {
-            Console.WriteLine($"File uploaded: {file.Name}");
-            selectedFile = file;
-            encodedFileText = null;
-
+            // Check if the file is a text file
             if (IsTextFile)
             {
-                Console.WriteLine("Processing as text file.");
-                await ReadFileAsTextAsync(file);
+                // Read the text file and store its content in InputText
+                HuffmanProcessingData.InputText = await HuffmanFileService.ReadFileAsTextAsync(file);
             }
             else
             {
-                Console.WriteLine("Processing as non-text file.");
-                _huffmanProcessingData.InputText = null;
+                // Read the binary file and convert it to Base64, then store it in InputText
+                var byteArray = await HuffmanFileService.ReadFileAsBytesAsync(file);
+                HuffmanProcessingData.InputText = Convert.ToBase64String(byteArray);
             }
         }
     }
 
+    // Method to process the file (encode it)
+    private void ProcessFile()
+    {
+        if (_selectedFile != null)
+        {
+            try
+            {
+                // Encode the text using Huffman encoding service
+                HuffmanEncoderService.EncodeText();
+            }
+            catch (Exception ex)
+            {
+                // If an error occurs during encoding, set the error message
+                HuffmanProcessingData.EncodedText = $"Error during encoding file: {ex.Message}";
+            }
+        }
+    }
+
+    // Method called when the component is initialized
     protected override void OnInitialized()
     {
+        // Subscribe to the OnChange event of the encoder service to refresh the UI
         HuffmanEncoderService.OnChange += StateHasChanged;
     }
 
+    // Cleanup method to unsubscribe from events when the component is disposed
     public void Dispose()
     {
+        // Unsubscribe from the encoder service's OnChange event to prevent memory leaks
         HuffmanEncoderService.OnChange -= StateHasChanged;
     }
 }

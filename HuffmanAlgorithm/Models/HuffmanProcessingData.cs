@@ -7,10 +7,6 @@
         public string? DecodedText { get; set; } = ""; // The result of the decoded text
         public bool IsPending { get; set; } = false; // Flag indicating if the process is ongoing
         public int NodeIdCounter { get; set; } = 0; // Counter for generating unique IDs
-        public byte[]? EncodedBinaryData { get; set; } = null; // Encoded binary data
-        public Dictionary<byte, int>? HuffmanBinaryFrequencies { get; set; } // Frequencies for binary data
-        public Dictionary<byte, string>? HuffmanBinaryCodes { get; set; } // Binary Huffman codes
-
         public Dictionary<char, int>? HuffmanFrequencies { get; set; } // Frequencies for text data
         public PriorityQueue<HuffmanNode, int>? HuffmanPriorityQueue { get; set; } // Priority queue to store Huffman occurrence frequency
         public HuffmanNode? HuffmanTree { get; set; } // Huffman tree

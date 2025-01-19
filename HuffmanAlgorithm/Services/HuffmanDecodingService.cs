@@ -9,12 +9,16 @@ namespace HuffmanAlgorithm.Services
         // Method to decode the encoded data using the Huffman tree
         public string DecodeHuffmanData(string encodedData, HuffmanNode root, string originalText)
         {
-            var decodedText = new StringBuilder(); // StringBuilder to accumulate the decoded text
-            var currentNode = root; // Start with the root node of the Huffman tree
+            // StringBuilder to accumulate the decoded text
+            var decodedText = new StringBuilder();
 
-            Console.WriteLine(currentNode);
+            // Start with the root node of the Huffman tree
+            var currentNode = root;
 
-            // Traverse the encoded data bit by bit
+            // Keep track of the position in the original text
+            int originalTextIndex = 0;
+
+            // Loop the encoded data bit by bit
             foreach (var bit in encodedData)
             {
                 // Traverse left for '0' and right for '1'
@@ -23,19 +27,29 @@ namespace HuffmanAlgorithm.Services
                 // If we reach a leaf node (no left or right child), it's a decoded symbol
                 if (currentNode?.Left == null && currentNode?.Right == null)
                 {
+                    // Append the symbol of the leaf node to the decoded text
+                    decodedText.Append(currentNode?.Symbol ?? '\0');
 
-                    char decodedChar = currentNode?.Symbol ?? '\0';
-                    decodedText.Append(decodedChar);
-                    if (originalText.Contains(decodedChar.ToString().ToUpper()))
+                    // Check if the corresponding character in the original text is uppercase
+                    if (originalTextIndex < originalText.Length)
                     {
-                        decodedText[decodedText.Length - 1] = Char.ToUpper(decodedChar);
-                    }
-                    currentNode = root; // Reset to the root for the next character
+                        // If the character in the original text is uppercase, update the last character of decoded text to uppercase
+                        if (char.IsUpper(originalText[originalTextIndex]))
+                        {
+                            decodedText[decodedText.Length - 1] = char.ToUpper(currentNode?.Symbol ?? '\0');
+                        }
 
+                        // Increment the index to move to the next character in the original text
+                        originalTextIndex++;
+                    }
+
+                    // Reset to the root of the Huffman tree for decoding the next symbol
+                    currentNode = root;
                 }
             }
 
-            return decodedText.ToString(); // Return the decoded string
+            // Return the fully decoded text
+            return decodedText.ToString();
         }
     }
 }

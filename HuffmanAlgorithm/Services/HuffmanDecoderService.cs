@@ -32,7 +32,7 @@ namespace HuffmanAlgorithm.Services
                 return;
 
             // Generate the priority queue based on the frequency of characters (or bytes)
-            var priorityQueue = _huffmanEncodingService.GeneratePriorityQueue(_huffmanProcessingData.HuffmanFrequencies!);
+            var priorityQueue = _huffmanEncodingService.GeneratePriorityQueue(_huffmanProcessingData.HuffmanFrequencies ?? new Dictionary<char, int>());
 
             // Generate the Huffman tree using the priority queue
             var root = _huffmanTreeBuilderService.GenerateHuffmanTree(priorityQueue);

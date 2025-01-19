@@ -8,33 +8,44 @@
 @implements IDisposable
 
 <div class="huffman-data-processing-component-textarea-wrapper">
+    <!-- Textarea to input text to be encoded -->
     <div class="huffman-data-processing-component-textarea-item">
         <h4 class="huffman-data-processing-component-textarea-label">Text to encode</h4>
         <textarea @bind="_huffmanProcessingData.InputText" rows="4" placeholder="Enter text to encode"></textarea>
     </div>
+
+    <!-- Buttons for encoding and decoding actions -->
     <div class="huffman-data-processing-component-textarea-item">
         <button @onclick="HuffmanEncoderService.EncodeText" disabled="@_huffmanProcessingData.IsPending">Encode</button>
         <button @onclick="HuffmanDecoderService.DecodeText" disabled="@_huffmanProcessingData.IsPending">Decode</button>
     </div>
+
+    <!-- Textarea to display the encoded text -->
     <div class="huffman-data-processing-component-textarea-item">
         <h4 class="huffman-data-processing-component-textarea-label">Encoded text</h4>
         <textarea @bind="_huffmanProcessingData.EncodedText" disabled="disabled" rows="4" placeholder="Encoded text"></textarea>
     </div>
 </div>
+
+<!-- Textarea to display the decoded text -->
 <div class="huffman-data-processing-component-textarea-item">
     <h4 class="huffman-data-processing-component-textarea-label">Decoded text</h4>
     <textarea @bind="_huffmanProcessingData.DecodedText" disabled="disabled" rows="4" placeholder="Decoded text"></textarea>
 </div>
 
 @code {
+    // Called when the component is initialized
     protected override void OnInitialized()
     {
+        // Subscribe to the state change event to re-render the UI when there are changes
         HuffmanEncoderService.OnChange += StateHasChanged;
         HuffmanDecoderService.OnChange += StateHasChanged;
     }
 
+    // Cleanup method to unsubscribe from events when the component is disposed
     public void Dispose()
     {
+        // Unsubscribe from state change events to prevent memory leaks
         HuffmanEncoderService.OnChange -= StateHasChanged;
         HuffmanDecoderService.OnChange -= StateHasChanged;
     }

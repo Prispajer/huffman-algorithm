@@ -167,6 +167,10 @@
 }
 
 @media only screen and (max-width: 580px) {
+    ﻿﻿﻿.huffman-data-processing-component-title {
+        font-size: 42px;
+    }
+
     .huffman-data-processing-component-summary-wrapper {
         display: flex;
         flex-direction: column;
@@ -194,6 +198,10 @@
 }
 
 @media (min-width: 580px) and (max-width: 850px) {
+    ﻿﻿﻿.huffman-data-processing-component-title {
+        font-size: 48px;
+    }
+
     .huffman-data-processing-component-summary-huffman-tree-container {
         display: flex;
         flex-direction: column;

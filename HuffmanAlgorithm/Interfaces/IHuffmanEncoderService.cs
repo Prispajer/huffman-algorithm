@@ -7,6 +7,5 @@ namespace HuffmanAlgorithm.Interfaces
     {
         event Action? OnChange;
         void EncodeText();
-        void EncodeBinaryData(byte[] inputData);
     }
 }

@@ -6,6 +6,5 @@ namespace HuffmanAlgorithm.Interfaces
     {
         HuffmanNode GenerateHuffmanTree(PriorityQueue<HuffmanNode, int> priorityQueue);
         void GenerateCodesRecursive(HuffmanNode node, string currentCode, Dictionary<char, string> codes);
-        void GenerateCodesRecursive(HuffmanNode node, string currentCode, Dictionary<byte, string> codes);
     }
 }

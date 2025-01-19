@@ -13,7 +13,20 @@
     justify-content: center;
     width: 100vw;
     height: 100vh;
-    font-size: 48px;
+    font-size: 64px;
+    font-bold;
     background-color: #795757;
     color: #ECDFCC;
+}
+
+@media only screen and (max-width: 580px) {
+    .loading-progress-text {
+        font-size: 42px;
+    }
+}
+
+@media (min-width: 580px) and (max-width: 850px) {
+    .loading-progress-text {
+        font-size: 48px;
+    }
 }
