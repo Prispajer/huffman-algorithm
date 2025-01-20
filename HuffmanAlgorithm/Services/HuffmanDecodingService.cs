@@ -33,7 +33,7 @@ namespace HuffmanAlgorithm.Services
                     // Check if the corresponding character in the original text is uppercase
                     if (originalTextIndex < originalText.Length)
                     {
-                        // If the character in the original text is uppercase, update the last character of decoded text to uppercase
+                        // If the character in the original text is uppercase, update the characters of decoded text to uppercase
                         if (char.IsUpper(originalText[originalTextIndex]))
                         {
                             decodedText[decodedText.Length - 1] = char.ToUpper(currentNode?.Symbol ?? '\0');

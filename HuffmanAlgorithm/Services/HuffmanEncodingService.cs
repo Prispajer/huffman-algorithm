@@ -23,8 +23,7 @@ namespace HuffmanAlgorithm.Services
             // Create Huffman nodes for each character and add them to the priority queue.
             foreach (var entry in frequencyDictionary)
             {
-                priorityQueue.Enqueue(new HuffmanNode { Symbol = entry.Key, Frequency = entry.Value }, entry.Value);
-                Console.WriteLine($"Character: {entry.Key}, Frequency: {entry.Value}"); // Debugging: Print character frequencies.
+                priorityQueue.Enqueue(new HuffmanNode { Symbol = entry.Key, Frequency = entry.Value}, entry.Value);
             }
 
             return priorityQueue;

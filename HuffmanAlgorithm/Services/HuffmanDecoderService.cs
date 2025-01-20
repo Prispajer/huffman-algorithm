@@ -31,14 +31,8 @@ namespace HuffmanAlgorithm.Services
             if (string.IsNullOrEmpty(_huffmanProcessingData.EncodedText) || string.IsNullOrEmpty(_huffmanProcessingData.InputText))
                 return;
 
-            // Generate the priority queue based on the frequency of characters (or bytes)
-            var priorityQueue = _huffmanEncodingService.GeneratePriorityQueue(_huffmanProcessingData.HuffmanFrequencies ?? new Dictionary<char, int>());
-
-            // Generate the Huffman tree using the priority queue
-            var root = _huffmanTreeBuilderService.GenerateHuffmanTree(priorityQueue);
-
-            // Decode the encoded text using the Huffman tree's root
-            _huffmanProcessingData.DecodedText = _huffmanDecodingService.DecodeHuffmanData(_huffmanProcessingData.EncodedText, root, _huffmanProcessingData.InputText);
+            // Decode the encoded text using the Huffman tree
+            _huffmanProcessingData.DecodedText = _huffmanDecodingService.DecodeHuffmanData(_huffmanProcessingData.EncodedText, _huffmanProcessingData.HuffmanTree ?? new HuffmanNode(), _huffmanProcessingData.InputText);
 
             // Notify listeners that the state has changed (this could trigger UI updates, etc.)
             OnChange?.Invoke();
