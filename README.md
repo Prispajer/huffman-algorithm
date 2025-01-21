@@ -1,5 +1,5 @@
 <div align="center">
-  <h1 style="display: inline; vertical-align: middle;">Huffman Algorithm - Data Compression</h1>
+  <h1 style="display: inline; vertical-align: middle;">Huffman Algorithm - Data Coding & Decoding</h1>
 </div>
 
 # Introduction
@@ -27,7 +27,7 @@ The application includes the following features:
 - **Huffman Tree Visualization**: Interactive visual representation of the Huffman tree.
 - **Progress Indicator**: See real-time status while encoding or decoding data.
 - 
-# Application Screenshots and Demo
+# Application Screenshots
 - **Home Page**  
   ![Home Page](https://drive.usercontent.google.com/download?id=11TMJaq8iJ68UsQ_bWTpoRA5EQY1Toj7-&export=view&authuser=0)
 
