@@ -68,7 +68,7 @@ The application is designed in a modular way, with clear separation of responsib
 - **HuffmanGraphService** – for generating and visualizing the Huffman tree.
 - **HuffmanFileService** – for handling input and output files.
 
-## Project Structure:
+# Project Structure:
 - **wwwroot**: Static resources (images, CSS, JS files).
 - **Components**: User interface components.
 - **Interfaces**: Service interfaces defining contracts that must be implemented.
@@ -77,7 +77,7 @@ The application is designed in a modular way, with clear separation of responsib
 - **Pages**: Application pages.
 - **Services**: Business logic of the application.
   
-## Software:
+# Software:
 - Visual Studio or any code editor compatible with JavaScript/TypeScript.
 - Node.js and NPM (Node Package Manager).
 - A modern web browser (Google Chrome, Mozilla Firefox, Microsoft Edge).
