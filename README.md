@@ -46,7 +46,7 @@ The application includes the following features:
 # Application Tech Stack
   - C#
   - ASP.NET 
-  - Node.js/NPM 
+  - NPM
   - DotNetGraph 
   - Viz.js 
   - Blazor
